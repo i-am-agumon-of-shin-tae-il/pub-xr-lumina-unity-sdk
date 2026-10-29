@@ -1,5 +1,6 @@
-.DS_Store
 
 # Unity UPM sample directory names end in '~' and must be versioned.
 !Samples~/
 !Samples~/**
+
+.DS_Store
