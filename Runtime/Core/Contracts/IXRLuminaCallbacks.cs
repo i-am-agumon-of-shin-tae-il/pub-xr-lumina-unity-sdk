@@ -1,5 +1,7 @@
 using System;
-using XRLumina.Core.API;
+
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Contracts
 {
     /// <summary>

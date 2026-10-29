@@ -1,18 +1,20 @@
-using XRLumina.Unity.Models;
 using UnityEngine;
+
+using XRLumina.Unity.Models;
+
 namespace XRLumina.Unity.Contracts
 {
     /// <summary>
-    /// 시선 캡처 구간의 시작과 확정 시점을 게임에서 선택하는 계약.
+    /// 콘텐츠의 시선 캡처 구간을 SDK 기록과 촬영 기능에 연결하는 규약
     /// </summary>
     public interface IXRLuminaGazeCapturePolicy
     {
         /// <summary>
-        /// 새 측정의 구간 판정 상태를 초기화한다.
+        /// 새 측정의 구간 판단 상태 초기화
         /// </summary>
         void Reset();
         /// <summary>
-        /// 위치와 시각으로 캡처 구간 및 필요한 센서 기록 범위를 반환한다.
+        /// 현재 위치와 시각에 대한 캡처 구간 반환
         /// </summary>
         GazeCaptureDecision Evaluate(Vector3 position, int sourceId, float capturedAt, bool captureConfirmed);
     }

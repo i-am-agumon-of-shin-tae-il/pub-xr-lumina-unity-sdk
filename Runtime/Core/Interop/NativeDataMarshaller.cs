@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
 using XRLumina.Core.API;
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Interop
 {
     /// <summary>
@@ -25,7 +28,7 @@ namespace XRLumina.Core.Interop
                 throw new ArgumentException("Invalid client options.", nameof(options));
             }
             return new NativeDto.Options {
-                Version = 1,
+                Version = NativeMethods.AbiVersion,
                 ClientId = options.ClientId,
                 Model = options.Model,
                 Name = options.Name,

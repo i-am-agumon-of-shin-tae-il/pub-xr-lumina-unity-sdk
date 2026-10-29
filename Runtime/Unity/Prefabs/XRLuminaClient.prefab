@@ -46,10 +46,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a878e6d0b39f45cb94438ad1c0db65b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Controllers.XRLuminaClientController
-  host: 
-  port: 9999
-  discoveryPort: 9998
+  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Components.Client.XRLuminaClientController
   head: {fileID: 0}
   body: {fileID: 0}
   retryDelayMs: 1500
@@ -66,7 +63,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fc8af8efae349829879f266f3dcbe40, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Controllers.XRLuminaMirroringController
+  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Components.Features.XRLuminaMirroringController
   streamEnabled: 1
   width: 640
   height: 480
@@ -83,7 +80,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2ee65a39ca24708a9ea45d0890795ac, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Controllers.XRLuminaInteractionController
+  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Components.Features.XRLuminaInteractionController
   framesPerSecond: 5
   joystickDeadzone: 0.5
 --- !u!114 &11400003
@@ -97,7 +94,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d63ba6c3dbcc49da9c25788653890a43, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Controllers.XRLuminaEyeTrackingController
+  m_EditorClassIdentifier: XRLumina.Runtime::XRLumina.Unity.Components.Features.XRLuminaEyeTrackingController
   gazeLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295

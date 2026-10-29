@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using XRLumina.Core.API;
+
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Interop
 {
     /// <summary>
@@ -8,6 +10,16 @@ namespace XRLumina.Core.Interop
     /// </summary>
     internal static class NativeMethods
     {
+        /// <summary>
+        /// CoreApi.h의 XRL_ABI_VERSION과 동일한 호출 규약 버전
+        /// </summary>
+        internal const uint AbiVersion = 1;
+        /// <summary>
+        /// CoreApi.h의 XRL_REQUEST_ID_CAPACITY와 동일한 요청 ID 버퍼 크기
+        /// </summary>
+        internal const int RequestIdCapacity = 128;
+        private const int Success = 0;
+        private const int Error = 1;
 #if UNITY_IOS && !UNITY_EDITOR
         private const string Library = "__Internal";
 #elif UNITY_ANDROID && !UNITY_EDITOR
@@ -33,11 +45,11 @@ namespace XRLumina.Core.Interop
         /// </summary>
         internal static bool Check(int result)
         {
-            if (result == 1)
+            if (result == Error)
             {
                 throw new InvalidOperationException(Text(LastError()));
             }
-            return result == 0;
+            return result == Success;
         }
         /// <summary>
         /// 호출 스레드의 마지막 네이티브 오류 조회

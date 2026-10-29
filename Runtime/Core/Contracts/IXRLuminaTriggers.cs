@@ -1,5 +1,8 @@
 using System;
-using XRLumina.Core.API;
+using System.Threading.Tasks;
+
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Contracts
 {
     /// <summary>
@@ -79,5 +82,9 @@ namespace XRLumina.Core.Contracts
         /// 업로드 완료 확인 요청과 콜백 식별자 반환
         /// </summary>
         string Flush(FlushGroup group, float interval, double timeoutSeconds = 10);
+        /// <summary>
+        /// 코어 완료 콜백과 연결한 업로드 결과 대기. 완료와 시간 제한 처리를 위해 Tick 호출 유지
+        /// </summary>
+        Task<FlushResult> FlushAsync(FlushGroup group, float interval, double timeoutSeconds = 10);
     }
 }

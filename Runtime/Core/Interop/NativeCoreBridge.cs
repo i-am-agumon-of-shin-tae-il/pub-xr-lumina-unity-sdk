@@ -1,8 +1,12 @@
-using XRLumina.Core.Contracts;
 using System;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+
 using XRLumina.Core.API;
+using XRLumina.Core.Contracts;
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Interop
 {
     /// <summary>
@@ -181,11 +185,19 @@ namespace XRLumina.Core.Interop
         public string Flush(FlushGroup group, float interval, double timeoutSeconds = 10)
         {
             VerifyAccess();
-            var bytes = new byte[128];
+            var bytes = new byte[NativeMethods.RequestIdCapacity];
             NativeMethods.Check(NativeMethods.Flush(_native, (uint)group, interval, timeoutSeconds,
                                                    bytes, (UIntPtr)bytes.Length));
             return Encoding.UTF8.GetString(bytes, 0, Array.IndexOf(bytes, (byte)0));
         }
+        /// <summary>
+        /// 코어 업로드 요청과 관리형 완료 대기 연결
+        /// </summary>
+        public Task<FlushResult> FlushAsync(FlushGroup group, float interval, double timeoutSeconds = 10)
+        {
+            return _callbacks.TrackFlush(Flush(group, interval, timeoutSeconds));
+        }
+
         /// <summary>
         /// 콜백 중 폐기를 Tick 반환 이후로 지연하여 핸들 수명 보장
         /// </summary>

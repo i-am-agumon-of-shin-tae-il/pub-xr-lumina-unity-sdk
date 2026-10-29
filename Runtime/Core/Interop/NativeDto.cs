@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using XRLumina.Core.API;
+
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Interop
 {
     /// <summary>

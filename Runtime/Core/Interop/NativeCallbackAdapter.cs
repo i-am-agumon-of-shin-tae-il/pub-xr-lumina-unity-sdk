@@ -1,8 +1,11 @@
-using XRLumina.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using XRLumina.Core.API;
+using System.Threading.Tasks;
+
+using XRLumina.Core.Contracts;
+using XRLumina.Core.Models;
+
 namespace XRLumina.Core.Interop
 {
     /// <summary>
@@ -15,6 +18,7 @@ namespace XRLumina.Core.Interop
         private readonly Func<IntPtr> _nativeHandle;
         private readonly Func<bool> _acceptCallbacks;
         private readonly List<Exception> _callbackErrors = new();
+        private readonly Dictionary<string, TaskCompletionSource<FlushResult>> _flushes = new();
         private GCHandle _self;
         internal NativeMethods.Callback Callback => NativeCallback;
         internal IntPtr UserData => GCHandle.ToIntPtr(_self);
@@ -33,6 +37,16 @@ namespace XRLumina.Core.Interop
             _acceptCallbacks = acceptCallbacks;
             _self = GCHandle.Alloc(this);
         }
+        /// <summary>
+        /// 코어 요청 ID와 관리형 완료 대기 연결
+        /// </summary>
+        internal Task<FlushResult> TrackFlush(string id)
+        {
+            var completion = new TaskCompletionSource<FlushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _flushes.Add(id, completion);
+            return completion.Task;
+        }
+
         /// <summary>
         /// 연결 종료 후 세션 조회 값 초기화
         /// </summary>
@@ -123,8 +137,15 @@ namespace XRLumina.Core.Interop
                     _callbacks.OnFault(new InvalidOperationException(NativeMethods.Text(value.Message)));
                     break;
                 case NativeDto.EventType.FlushCompleted:
-                    _callbacks.OnFlushCompleted(NativeMethods.Text(value.Id), value.Ok != 0,
-                                                value.Ok != 0 ? null : NativeMethods.Text(value.Message));
+                    var id = NativeMethods.Text(value.Id);
+                    var result = new FlushResult(id, value.Ok != 0,
+                        value.Ok != 0 ? null : NativeMethods.Text(value.Message));
+                    if (_flushes.TryGetValue(id, out var completion))
+                    {
+                        _flushes.Remove(id);
+                        completion.TrySetResult(result);
+                    }
+                    _callbacks.OnFlushCompleted(id, result.IsSuccess, result.Error);
                     break;
             }
         }
@@ -148,6 +169,11 @@ namespace XRLumina.Core.Interop
             {
                 _self.Free();
             }
+            foreach (var pending in _flushes)
+            {
+                pending.Value.TrySetResult(new FlushResult(pending.Key, false, "client disposed"));
+            }
+            _flushes.Clear();
             IsRunning = IsAuthenticated = IsMeasuring = false;
             Session = null;
         }
