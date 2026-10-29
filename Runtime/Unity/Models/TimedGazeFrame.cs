@@ -2,7 +2,9 @@ using UnityEngine;
 
 namespace XRLumina.Unity.Models
 {
-    /// <summary>시각, 시선, 카메라 자세를 묶은 내부 기록 모델.</summary>
+    /// <summary>
+    /// 시각, 시선, 카메라 자세를 묶은 내부 기록 모델.
+    /// </summary>
     internal readonly struct TimedGazeFrame
     {
         public readonly float CapturedAt;

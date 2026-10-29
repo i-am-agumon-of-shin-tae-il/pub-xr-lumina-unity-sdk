@@ -8,7 +8,9 @@ using System;
 
 namespace XRLumina.Unity.Controllers
 {
-    /// <summary>인스펙터의 상호작용 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.</summary>
+    /// <summary>
+    /// 인스펙터의 상호작용 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.
+    /// </summary>
     public sealed class XRLuminaInteractionController : MonoBehaviour
     {
         public static XRLuminaInteractionController Instance { get; private set; }
@@ -34,7 +36,9 @@ namespace XRLumina.Unity.Controllers
         private IXRLuminaTriggers _client;
         private Coroutine _trackingCoroutine;
 
-        /// <summary>현재 상호작용 컴포넌트를 SDK 접근점으로 등록한다.</summary>
+        /// <summary>
+        /// 현재 상호작용 컴포넌트를 SDK 접근점으로 등록한다.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -43,7 +47,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>클라이언트 서비스에 연결하고 측정 상태 이벤트를 구독한다.</summary>
+        /// <summary>
+        /// 클라이언트 서비스에 연결하고 측정 상태 이벤트를 구독한다.
+        /// </summary>
         private void Start()
         {
             var client = XRLuminaClientController.Instance;
@@ -76,7 +82,9 @@ namespace XRLumina.Unity.Controllers
             _rig.MeasurementFinished += FinishFeature;
         }
 
-        /// <summary>측정 시작 전에 게임별 휴리스틱 캡처 조건을 등록한다. 미등록 시 Inspector 기본 정책을 사용한다.</summary>
+        /// <summary>
+        /// 측정 시작 전에 게임별 휴리스틱 캡처 조건을 등록한다. 미등록 시 Inspector 기본 정책을 사용한다.
+        /// </summary>
         public void SetCapturePolicy(IXRLuminaHeuristicCapturePolicy policy)
         {
             if (_client?.IsMeasuring == true)
@@ -87,7 +95,9 @@ namespace XRLumina.Unity.Controllers
             _heuristicScreenshotService?.SetPolicy(policy);
         }
 
-        /// <summary>상호작용 측정 시작을 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 상호작용 측정 시작을 서비스에 전달한다.
+        /// </summary>
         private void StartFeature()
         {
             StopTracking();
@@ -99,7 +109,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>상호작용 측정 종료를 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 상호작용 측정 종료를 서비스에 전달한다.
+        /// </summary>
         private void FinishFeature()
         {
             _service?.FinishFeature();
@@ -114,7 +126,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>Unity 프레임 갱신을 서비스에 전달한다.</summary>
+        /// <summary>
+        /// Unity 프레임 갱신을 서비스에 전달한다.
+        /// </summary>
         private void Update()
         {
             _service?.Tick();
@@ -125,7 +139,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>지정 종류의 상호작용 이벤트 기록을 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 지정 종류의 상호작용 이벤트 기록을 서비스에 전달한다.
+        /// </summary>
         public void RecordInteractionEvent(XRLumina.Core.API.EventKind type)
         {
             if (_client?.IsMeasuring != true)
@@ -136,7 +152,9 @@ namespace XRLumina.Unity.Controllers
             _service?.RecordEvent(type);
         }
 
-        /// <summary>대상 오브젝트와 Controller 입력을 포함한 상호작용 이벤트를 기록한다.</summary>
+        /// <summary>
+        /// 대상 오브젝트와 Controller 입력을 포함한 상호작용 이벤트를 기록한다.
+        /// </summary>
         public void RecordInteractionEvent(
             XRLumina.Core.API.EventKind type,
             GameObject target,
@@ -159,7 +177,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>포즈 추적 종료를 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 포즈 추적 종료를 서비스에 전달한다.
+        /// </summary>
         private void StopTracking()
         {
             if (_trackingCoroutine != null)
@@ -169,7 +189,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>컴포넌트가 제거될 때 서비스 자원을 정리한다.</summary>
+        /// <summary>
+        /// 컴포넌트가 제거될 때 서비스 자원을 정리한다.
+        /// </summary>
         private void OnDestroy()
         {
             if (Instance == this)

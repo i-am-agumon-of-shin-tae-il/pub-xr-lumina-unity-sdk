@@ -7,7 +7,9 @@ using XRLumina.Unity.Services;
 
 namespace XRLumina.Unity.Controllers
 {
-    /// <summary>인스펙터의 아이트래킹 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.</summary>
+    /// <summary>
+    /// 인스펙터의 아이트래킹 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.
+    /// </summary>
     public sealed class XRLuminaEyeTrackingController : MonoBehaviour
     {
         [SerializeField] private LayerMask gazeLayerMask = ~0;
@@ -26,7 +28,9 @@ namespace XRLumina.Unity.Controllers
         private IXRLuminaTriggers _client;
         private Coroutine _recordingCoroutine;
 
-        /// <summary>클라이언트 서비스에 연결하고 측정 상태 이벤트를 구독한다.</summary>
+        /// <summary>
+        /// 클라이언트 서비스에 연결하고 측정 상태 이벤트를 구독한다.
+        /// </summary>
         private void Start()
         {
             _rig = XRLuminaClientController.Instance;
@@ -52,7 +56,9 @@ namespace XRLumina.Unity.Controllers
             _rig.MeasurementFinished += FinishFeature;
         }
 
-        /// <summary>게임별 시선 캡처 구간 정책을 측정 시작 전에 등록한다.</summary>
+        /// <summary>
+        /// 게임별 시선 캡처 구간 정책을 측정 시작 전에 등록한다.
+        /// </summary>
         public void SetCapturePolicy(IXRLuminaGazeCapturePolicy policy)
         {
             if (_client?.IsMeasuring == true)
@@ -63,7 +69,9 @@ namespace XRLumina.Unity.Controllers
             _service?.SetPolicy(policy);
         }
 
-        /// <summary>아이트래킹 이동 판정에 사용할 플레이어 Transform을 반환한다.</summary>
+        /// <summary>
+        /// 아이트래킹 이동 판정에 사용할 플레이어 Transform을 반환한다.
+        /// </summary>
         private Transform ResolveMovementSource()
         {
             var source = _rig != null ? _rig.Body : null;
@@ -79,7 +87,9 @@ namespace XRLumina.Unity.Controllers
             return source;
         }
 
-        /// <summary>아이트래킹 측정 시작을 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 아이트래킹 측정 시작을 서비스에 전달한다.
+        /// </summary>
         private void StartFeature()
         {
             StopRecording();
@@ -90,7 +100,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>아이트래킹 측정 종료를 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 아이트래킹 측정 종료를 서비스에 전달한다.
+        /// </summary>
         private  void FinishFeature()
         {
             StopRecording();
@@ -101,7 +113,9 @@ namespace XRLumina.Unity.Controllers
             }
         }
 
-        /// <summary>컴포넌트가 제거될 때 서비스 자원을 정리한다.</summary>
+        /// <summary>
+        /// 컴포넌트가 제거될 때 서비스 자원을 정리한다.
+        /// </summary>
         private void OnDestroy()
         {
             if (_rig != null)
@@ -112,7 +126,9 @@ namespace XRLumina.Unity.Controllers
             StopRecording();
         }
 
-        /// <summary>실행 중인 아이트래킹 기록 코루틴을 중지한다.</summary>
+        /// <summary>
+        /// 실행 중인 아이트래킹 기록 코루틴을 중지한다.
+        /// </summary>
         private void StopRecording()
         {
             if (_recordingCoroutine == null)

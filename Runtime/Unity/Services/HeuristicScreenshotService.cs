@@ -26,7 +26,9 @@ namespace XRLumina.Unity.Services
         private bool _captureInProgress;
         private int _captureIndex;
 
-        /// <summary>휴리스틱 판정 기준과 캡처 설정으로 서비스를 생성한다.</summary>
+        /// <summary>
+        /// 휴리스틱 판정 기준과 캡처 설정으로 서비스를 생성한다.
+        /// </summary>
         internal HeuristicScreenshotService(
             IXRLuminaTriggers client,
             System.Func<Camera> resolveCamera,
@@ -47,20 +49,26 @@ namespace XRLumina.Unity.Services
             _captureHeight = captureHeight;
         }
 
-        /// <summary>게임에서 선택한 캡처 정책으로 교체하고 누적 상태를 초기화한다.</summary>
+        /// <summary>
+        /// 게임에서 선택한 캡처 정책으로 교체하고 누적 상태를 초기화한다.
+        /// </summary>
         internal void SetPolicy(IXRLuminaHeuristicCapturePolicy policy)
         {
             _policy = policy ?? throw new ArgumentNullException(nameof(policy));
             _policy.Reset();
         }
 
-        /// <summary>누적 판정 상태를 초기화하고 휴리스틱 추적을 시작한다.</summary>
+        /// <summary>
+        /// 누적 판정 상태를 초기화하고 휴리스틱 추적을 시작한다.
+        /// </summary>
         internal void StartFeature()
         {
             ResetState();
         }
 
-        /// <summary>현재 HMD 포즈와 컨트롤러 입력을 판정한다.</summary>
+        /// <summary>
+        /// 현재 HMD 포즈와 컨트롤러 입력을 판정한다.
+        /// </summary>
         internal HeuristicScreenshotTrigger? Tick()
         {
             if (!_client.IsMeasuring || _captureInProgress)
@@ -84,7 +92,9 @@ namespace XRLumina.Unity.Services
             return UpdateControllerInputs(now);
         }
 
-        /// <summary>게임에서 확정된 오브젝트·입력 조합을 반복 인터랙션 판정에 추가한다.</summary>
+        /// <summary>
+        /// 게임에서 확정된 오브젝트·입력 조합을 반복 인터랙션 판정에 추가한다.
+        /// </summary>
         internal HeuristicScreenshotTrigger? RecordInteraction(
             GameObject target,
             Wire.ControllerInput controllerInput,
@@ -99,7 +109,9 @@ namespace XRLumina.Unity.Services
             return _policy.EvaluateInteraction(target.GetInstanceID(), target.name, controllerInput, hand, capturedAt);
         }
 
-        /// <summary>판정된 시점의 HMD 카메라 화면을 PNG로 생성해 Electron으로 전송한다.</summary>
+        /// <summary>
+        /// 판정된 시점의 HMD 카메라 화면을 PNG로 생성해 Electron으로 전송한다.
+        /// </summary>
         internal IEnumerator CaptureAndSend(HeuristicScreenshotTrigger trigger)
         {
             _captureInProgress = true;
@@ -125,7 +137,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>진행 중인 캡처가 끝난 뒤 Electron에 휴리스틱 이미지 업로드를 요청한다.</summary>
+        /// <summary>
+        /// 진행 중인 캡처가 끝난 뒤 Electron에 휴리스틱 이미지 업로드를 요청한다.
+        /// </summary>
         internal IEnumerator FinishAndFlush(float timeoutSec, Action<bool, string> onResult)
         {
             while (_captureInProgress)
@@ -146,7 +160,9 @@ namespace XRLumina.Unity.Services
 
 
 
-        /// <summary>좌우 컨트롤러의 버튼 상승 에지를 동일 오브젝트 반복 입력으로 판정한다.</summary>
+        /// <summary>
+        /// 좌우 컨트롤러의 버튼 상승 에지를 동일 오브젝트 반복 입력으로 판정한다.
+        /// </summary>
         private HeuristicScreenshotTrigger? UpdateControllerInputs(float now)
         {
             var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
@@ -161,7 +177,9 @@ namespace XRLumina.Unity.Services
                 ?? UpdateInput(right, Wire.ControllerHand.Right, CommonUsages.gripButton, Wire.ControllerInput.Grip, now);
         }
 
-        /// <summary>단일 컨트롤러 입력의 상승 에지에서 정면 오브젝트를 찾아 반복 횟수를 누적한다.</summary>
+        /// <summary>
+        /// 단일 컨트롤러 입력의 상승 에지에서 정면 오브젝트를 찾아 반복 횟수를 누적한다.
+        /// </summary>
         private HeuristicScreenshotTrigger? UpdateInput(
             InputDevice device,
             Wire.ControllerHand hand,
@@ -191,7 +209,9 @@ namespace XRLumina.Unity.Services
             return RecordInteraction(hit.collider.gameObject, input, now, hand);
         }
 
-        /// <summary>현재 카메라 영상을 지정 해상도의 PNG로 생성한다.</summary>
+        /// <summary>
+        /// 현재 카메라 영상을 지정 해상도의 PNG로 생성한다.
+        /// </summary>
         private byte[] CaptureCamera(Camera source)
         {
             var width = Mathf.Max(1, _captureWidth);
@@ -222,7 +242,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>발생 원인과 PNG를 단일 메시지로 전송해 메타데이터 반복을 제거한다.</summary>
+        /// <summary>
+        /// 발생 원인과 PNG를 단일 메시지로 전송해 메타데이터 반복을 제거한다.
+        /// </summary>
         private void SendCapture(HeuristicScreenshotTrigger trigger, byte[] bytes)
         {
             var fileName = $"{_captureIndex++:D3}-{trigger.Type}-{trigger.CapturedAt:F3}.png";
@@ -231,19 +253,25 @@ namespace XRLumina.Unity.Services
 
 
 
-        /// <summary>캡처와 정면 Raycast에 사용할 카메라를 반환한다.</summary>
+        /// <summary>
+        /// 캡처와 정면 Raycast에 사용할 카메라를 반환한다.
+        /// </summary>
         private Camera ResolveCamera()
         {
             return _resolveCamera?.Invoke();
         }
 
-        /// <summary>위치·Yaw 추적에 사용할 HMD Transform을 반환한다.</summary>
+        /// <summary>
+        /// 위치·Yaw 추적에 사용할 HMD Transform을 반환한다.
+        /// </summary>
         private Transform ResolveHead()
         {
             return _resolveHead?.Invoke();
         }
 
-        /// <summary>새 측정을 위해 모든 누적 판정 상태를 초기화한다.</summary>
+        /// <summary>
+        /// 새 측정을 위해 모든 누적 판정 상태를 초기화한다.
+        /// </summary>
         private void ResetState()
         {
             _policy.Reset();

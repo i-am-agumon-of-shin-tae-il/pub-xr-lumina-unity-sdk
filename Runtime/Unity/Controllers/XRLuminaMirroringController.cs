@@ -4,7 +4,9 @@ using XRLumina.Unity.Services;
 
 namespace XRLumina.Unity.Controllers
 {
-    /// <summary>인스펙터의 미러링 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.</summary>
+    /// <summary>
+    /// 인스펙터의 미러링 설정을 런타임 서비스에 연결하는 SDK 컴포넌트.
+    /// </summary>
     public sealed class XRLuminaMirroringController : MonoBehaviour
     {
         [SerializeField] private bool streamEnabled = true;
@@ -18,7 +20,9 @@ namespace XRLumina.Unity.Controllers
         private IXRLuminaTriggers _client;
         private Coroutine _streamCoroutine;
 
-        /// <summary>클라이언트 서비스에 연결하고 미러링 상태 이벤트를 구독한다.</summary>
+        /// <summary>
+        /// 클라이언트 서비스에 연결하고 미러링 상태 이벤트를 구독한다.
+        /// </summary>
         private void Start()
         {
             var client = XRLuminaClientController.Instance;
@@ -44,7 +48,9 @@ namespace XRLumina.Unity.Controllers
             _rig.Disconnected += StopStreaming;
         }
 
-        /// <summary>미러링 스트림 시작을 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 미러링 스트림 시작을 서비스에 전달한다.
+        /// </summary>
         private void StartStreaming()
         {
             if (_streamCoroutine != null || _service?.StartStreaming() != true)
@@ -54,7 +60,9 @@ namespace XRLumina.Unity.Controllers
             _streamCoroutine = StartCoroutine(_service.StreamLoop());
         }
 
-        /// <summary>미러링 스트림 종료를 서비스에 전달한다.</summary>
+        /// <summary>
+        /// 미러링 스트림 종료를 서비스에 전달한다.
+        /// </summary>
         private void StopStreaming()
         {
             if (_streamCoroutine != null)
@@ -65,7 +73,9 @@ namespace XRLumina.Unity.Controllers
             _service?.StopStreaming();
         }
 
-        /// <summary>컴포넌트가 제거될 때 서비스 자원을 정리한다.</summary>
+        /// <summary>
+        /// 컴포넌트가 제거될 때 서비스 자원을 정리한다.
+        /// </summary>
         private void OnDestroy()
         {
             if (_rig != null)

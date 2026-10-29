@@ -2,7 +2,9 @@ using XRLumina.Core.API;
 
 namespace XRLumina.Core.API
 {
-    /// <summary>휴리스틱 스크린샷을 생성한 조건과 부가 정보를 표현한다.</summary>
+    /// <summary>
+    /// 휴리스틱 스크린샷을 생성한 조건과 부가 정보를 표현한다.
+    /// </summary>
     public readonly struct HeuristicScreenshotTrigger
     {
         public HeuristicTrigger Type { get; }

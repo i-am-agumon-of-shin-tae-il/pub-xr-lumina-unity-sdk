@@ -34,7 +34,9 @@ namespace XRLumina.Unity.Services
         private Vector3 _panoramaPosition;
         private TimedGazeFrame? _segmentStartSample;
 
-        /// <summary>Unity 실행 호스트, SDK 의존성, 시선 기록 설정으로 서비스를 생성한다.</summary>
+        /// <summary>
+        /// Unity 실행 호스트, SDK 의존성, 시선 기록 설정으로 서비스를 생성한다.
+        /// </summary>
         internal EyeTrackingService(
             IXRLuminaTriggers client,
             System.Func<Camera> resolveCamera,
@@ -59,21 +61,27 @@ namespace XRLumina.Unity.Services
             _panoramaCubemapSize = panoramaCubemapSize;
         }
 
-        /// <summary>게임에서 선택한 시선 캡처 구간 정책으로 교체한다.</summary>
+        /// <summary>
+        /// 게임에서 선택한 시선 캡처 구간 정책으로 교체한다.
+        /// </summary>
         internal void SetPolicy(IXRLuminaGazeCapturePolicy policy)
         {
             _policy = policy ?? throw new ArgumentNullException(nameof(policy));
             ResetState();
         }
 
-        /// <summary>이전 기록을 초기화하고 연속 시선 기록과 정지 감지를 시작한다.</summary>
+        /// <summary>
+        /// 이전 기록을 초기화하고 연속 시선 기록과 정지 감지를 시작한다.
+        /// </summary>
         internal IEnumerator StartFeature()
         {
             ResetState();
             return RecordingLoop();
         }
 
-        /// <summary>연속 기록을 종료하고 이미 생성된 구간들의 업로드를 요청한다.</summary>
+        /// <summary>
+        /// 연속 기록을 종료하고 이미 생성된 구간들의 업로드를 요청한다.
+        /// </summary>
         internal void FinishFeature()
         {
             _recentGaze.Clear();
@@ -82,7 +90,9 @@ namespace XRLumina.Unity.Services
             _stationaryPanorama = null;
         }
 
-        /// <summary>설정된 FPS로 시선을 계속 기록하면서 플레이어 위치의 정지 구간을 판정한다.</summary>
+        /// <summary>
+        /// 설정된 FPS로 시선을 계속 기록하면서 플레이어 위치의 정지 구간을 판정한다.
+        /// </summary>
         internal IEnumerator RecordingLoop()
         {
             var delay = new WaitForSeconds(1f / Mathf.Max(1, _framesPerSecond));
@@ -97,7 +107,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>플레이어 위치로 구간을 판정하고 HMD 위치·회전으로 시선과 카메라 자세를 기록한다.</summary>
+        /// <summary>
+        /// 플레이어 위치로 구간을 판정하고 HMD 위치·회전으로 시선과 카메라 자세를 기록한다.
+        /// </summary>
         private void ProcessSample(Camera camera, float capturedAt)
         {
             var movementSource = _resolveMovementSource?.Invoke();
@@ -139,7 +151,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>정책이 선택한 다음 후보 구간의 캡처 버퍼를 초기화한다.</summary>
+        /// <summary>
+        /// 정책이 선택한 다음 후보 구간의 캡처 버퍼를 초기화한다.
+        /// </summary>
         private void BeginStationaryCandidate()
         {
             _isStationaryConfirmed = false;
@@ -149,7 +163,9 @@ namespace XRLumina.Unity.Services
             _requestGaze.Clear();
         }
 
-        /// <summary>정지 판정 순간 n ms 전부터의 시선을 요청 버퍼에 넣고 보정된 파노라마를 촬영한다.</summary>
+        /// <summary>
+        /// 정지 판정 순간 n ms 전부터의 시선을 요청 버퍼에 넣고 보정된 파노라마를 촬영한다.
+        /// </summary>
         private void ConfirmStationarySegment(Camera camera, float segmentStartedAt)
         {
             var startSample = FindClosestRecentSample(segmentStartedAt);
@@ -186,7 +202,9 @@ namespace XRLumina.Unity.Services
             _isStationaryConfirmed = _requestGaze.Count > 0;
         }
 
-        /// <summary>n ms 전 시각에 가장 가까운 시선·카메라 자세 샘플을 반환한다.</summary>
+        /// <summary>
+        /// n ms 전 시각에 가장 가까운 시선·카메라 자세 샘플을 반환한다.
+        /// </summary>
         private TimedGazeFrame? FindClosestRecentSample(float capturedAt)
         {
             if (_recentGaze.Count == 0)
@@ -210,7 +228,9 @@ namespace XRLumina.Unity.Services
             return closest;
         }
 
-        /// <summary>회전에서 좌우 방향만 남겨 수평 정면 회전으로 변환한다.</summary>
+        /// <summary>
+        /// 회전에서 좌우 방향만 남겨 수평 정면 회전으로 변환한다.
+        /// </summary>
         private static Quaternion GetLevelRotation(Quaternion rotation)
         {
             var forward = rotation * Vector3.forward;
@@ -222,7 +242,9 @@ namespace XRLumina.Unity.Services
             return Quaternion.LookRotation(forward.normalized, Vector3.up);
         }
 
-        /// <summary>정지 판정 순간 n ms 전부터 움직이기 직전까지 확정된 한 세트를 전송한다.</summary>
+        /// <summary>
+        /// 정지 판정 순간 n ms 전부터 움직이기 직전까지 확정된 한 세트를 전송한다.
+        /// </summary>
         private void SendConfirmedSegment()
         {
             if (_requestGaze.Count == 0 ||
@@ -242,7 +264,9 @@ namespace XRLumina.Unity.Services
             _requestGaze.Clear();
         }
 
-        /// <summary>구간 시작 위치에서 파노라마를 촬영하고 정면이 중앙에 오도록 픽셀을 순환 이동한다.</summary>
+        /// <summary>
+        /// 구간 시작 위치에서 파노라마를 촬영하고 정면이 중앙에 오도록 픽셀을 순환 이동한다.
+        /// </summary>
         private byte[] CapturePanorama(Camera source, Vector3 position, int shiftPixels)
         {
             if (source == null)
@@ -306,7 +330,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>각 행을 왼쪽으로 순환 이동하고 경계를 넘은 픽셀을 같은 행의 반대편에 붙인다.</summary>
+        /// <summary>
+        /// 각 행을 왼쪽으로 순환 이동하고 경계를 넘은 픽셀을 같은 행의 반대편에 붙인다.
+        /// </summary>
         private static Color32[] ShiftPanoramaRows(Color32[] pixels, int width, int height, int shiftPixels)
         {
             if (pixels == null || width <= 0 || height <= 0 || (long)width * height != pixels.Length)
@@ -330,7 +356,9 @@ namespace XRLumina.Unity.Services
             return shifted;
         }
 
-        /// <summary>정지 판정 순간 n ms 전의 시선과 자세를 복원할 최근 기록만 유지한다.</summary>
+        /// <summary>
+        /// 정지 판정 순간 n ms 전의 시선과 자세를 복원할 최근 기록만 유지한다.
+        /// </summary>
         private void TrimRecentGaze(float oldestAllowed)
         {
             var removeCount = 0;
@@ -345,7 +373,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>시선 레이캐스트 결과를 전송 가능한 프레임으로 생성한다.</summary>
+        /// <summary>
+        /// 시선 레이캐스트 결과를 전송 가능한 프레임으로 생성한다.
+        /// </summary>
         private GazeSampleFrame CreateGazeFrame(int frame, float time, Transform source)
         {
             var origin = source.position;
@@ -362,13 +392,17 @@ namespace XRLumina.Unity.Services
             return new GazeSampleFrame(frame, time, new[] { hitPosition });
         }
 
-        /// <summary>클라이언트에 연결된 HMD 카메라를 시선 기록 대상으로 반환한다.</summary>
+        /// <summary>
+        /// 클라이언트에 연결된 HMD 카메라를 시선 기록 대상으로 반환한다.
+        /// </summary>
         private Camera ResolveCamera()
         {
             return _resolveCamera?.Invoke();
         }
 
-        /// <summary>새 세션 기록을 위해 런타임 상태와 버퍼를 초기화한다.</summary>
+        /// <summary>
+        /// 새 세션 기록을 위해 런타임 상태와 버퍼를 초기화한다.
+        /// </summary>
         private void ResetState()
         {
             _recentGaze.Clear();
@@ -382,7 +416,9 @@ namespace XRLumina.Unity.Services
             _segmentStartSample = null;
         }
 
-        /// <summary>Electron에 아이트래킹 데이터 조합·업로드를 요청하고 응답을 기다린다.</summary>
+        /// <summary>
+        /// Electron에 아이트래킹 데이터 조합·업로드를 요청하고 응답을 기다린다.
+        /// </summary>
         internal IEnumerator Flush(float timeoutSec, Action<bool, string> onResult)
         {
             var session = _client.Session;
@@ -395,7 +431,9 @@ namespace XRLumina.Unity.Services
             yield return XRLuminaClientController.Flush(_client, Wire.FlushGroup.EyeTracking, 0f, timeoutSec, onResult);
         }
 
-        /// <summary>시선 충돌 지점을 이미지와 동일한 캡처 기준 좌표로 변환해 전송한다.</summary>
+        /// <summary>
+        /// 시선 충돌 지점을 이미지와 동일한 캡처 기준 좌표로 변환해 전송한다.
+        /// </summary>
         private void SendGaze(string fileName, IReadOnlyList<GazeSampleFrame> frames)
         {
             if (frames == null)
@@ -421,7 +459,9 @@ namespace XRLumina.Unity.Services
             RequireSubmitted(_client.SendGaze(new Wire.Gaze { Name = fileName, Items = items, }));
         }
 
-        /// <summary>PNG 파일을 단일 메시지로 전송하고 스트림의 분할 처리를 사용한다.</summary>
+        /// <summary>
+        /// PNG 파일을 단일 메시지로 전송하고 스트림의 분할 처리를 사용한다.
+        /// </summary>
         private void SendCapture(string fileName, byte[] bytes)
         {
             if (bytes != null)
@@ -430,7 +470,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>카메라 위치와 회전을 스키마 필드로 전송한다.</summary>
+        /// <summary>
+        /// 카메라 위치와 회전을 스키마 필드로 전송한다.
+        /// </summary>
         private void SendCameraPose(string fileName, Vector3 position, Quaternion rotation)
         {
             RequireSubmitted(_client.SendCameraPose(new Wire.CameraPose

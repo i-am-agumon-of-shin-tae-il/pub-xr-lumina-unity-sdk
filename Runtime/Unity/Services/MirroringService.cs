@@ -24,7 +24,9 @@ namespace XRLumina.Unity.Services
         private bool _isStreaming;
         private int _streamGeneration;
 
-        /// <summary>Unity 실행 호스트, 송신기, 미러링 설정으로 서비스를 생성한다.</summary>
+        /// <summary>
+        /// Unity 실행 호스트, 송신기, 미러링 설정으로 서비스를 생성한다.
+        /// </summary>
         internal MirroringService(
             IXRLuminaTriggers client,
             bool streamEnabled,
@@ -43,7 +45,9 @@ namespace XRLumina.Unity.Services
             _jpegQuality = jpegQuality;
         }
 
-        /// <summary>프레임 생산을 시작한다. 이미 실행 중이면 중복 시작하지 않는다.</summary>
+        /// <summary>
+        /// 프레임 생산을 시작한다. 이미 실행 중이면 중복 시작하지 않는다.
+        /// </summary>
         internal bool StartStreaming()
         {
             if (!_streamEnabled || _isStreaming)
@@ -55,7 +59,9 @@ namespace XRLumina.Unity.Services
             return true;
         }
 
-        /// <summary>프레임 생산을 중단하고 캡처 버퍼를 해제한다.</summary>
+        /// <summary>
+        /// 프레임 생산을 중단하고 캡처 버퍼를 해제한다.
+        /// </summary>
         public void StopStreaming()
         {
             _streamGeneration++;
@@ -64,7 +70,9 @@ namespace XRLumina.Unity.Services
             _readbackPending = false;
         }
 
-        /// <summary>설정된 주기에 맞춰 매 프레임 캡처를 요청한다.</summary>
+        /// <summary>
+        /// 설정된 주기에 맞춰 매 프레임 캡처를 요청한다.
+        /// </summary>
         internal IEnumerator StreamLoop()
         {
             var delay = new WaitForSeconds(1f / Mathf.Max(1, _framesPerSecond));
@@ -76,7 +84,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>메인 스레드를 대기시키지 않고 GPU에서 프레임을 비동기로 읽는다.</summary>
+        /// <summary>
+        /// 메인 스레드를 대기시키지 않고 GPU에서 프레임을 비동기로 읽는다.
+        /// </summary>
         private void CaptureFrame()
         {
             var camera = ResolveCamera();
@@ -108,7 +118,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>GPU 읽기 결과를 이미지로 인코딩해 등록된 소비자에게 전달한다.</summary>
+        /// <summary>
+        /// GPU 읽기 결과를 이미지로 인코딩해 등록된 소비자에게 전달한다.
+        /// </summary>
         private void OnReadbackComplete(AsyncGPUReadbackRequest request, int generation)
         {
             if (generation != _streamGeneration)
@@ -139,7 +151,9 @@ namespace XRLumina.Unity.Services
             }
         }
 
-        /// <summary>현재 해상도에 맞는 렌더링 및 인코딩 버퍼를 준비한다.</summary>
+        /// <summary>
+        /// 현재 해상도에 맞는 렌더링 및 인코딩 버퍼를 준비한다.
+        /// </summary>
         private void EnsureBuffers(int targetWidth, int targetHeight)
         {
             if (_renderTexture != null &&
@@ -154,7 +168,9 @@ namespace XRLumina.Unity.Services
             _renderTexture = new RenderTexture(targetWidth, targetHeight, 24, RenderTextureFormat.ARGB32);
         }
 
-        /// <summary>생성된 렌더링 및 인코딩 버퍼를 해제한다.</summary>
+        /// <summary>
+        /// 생성된 렌더링 및 인코딩 버퍼를 해제한다.
+        /// </summary>
         private void ReleaseBuffers()
         {
             if (_renderTexture != null)
@@ -167,7 +183,9 @@ namespace XRLumina.Unity.Services
             _bufferHeight = 0;
         }
 
-        /// <summary>클라이언트에 연결된 활성 HMD 카메라를 캡처 대상으로 반환한다.</summary>
+        /// <summary>
+        /// 클라이언트에 연결된 활성 HMD 카메라를 캡처 대상으로 반환한다.
+        /// </summary>
         private Camera ResolveCamera()
         {
             var camera = _resolveCamera?.Invoke();

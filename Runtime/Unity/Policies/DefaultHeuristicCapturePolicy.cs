@@ -7,7 +7,9 @@ using ControllerHand = XRLumina.Core.API.ControllerHand;
 using Wire = XRLumina.Core.API;
 namespace XRLumina.Unity.Policies
 {
-    /// <summary>기존 Inspector 기준을 사용하는 교체 가능한 기본 휴리스틱 캡처 정책.</summary>
+    /// <summary>
+    /// 기존 Inspector 기준을 사용하는 교체 가능한 기본 휴리스틱 캡처 정책.
+    /// </summary>
     internal sealed class DefaultHeuristicCapturePolicy : IXRLuminaHeuristicCapturePolicy
     {
         private readonly struct PositionSample
@@ -15,7 +17,9 @@ namespace XRLumina.Unity.Policies
             internal float Time { get; }
             internal Vector2 Position { get; }
 
-            /// <summary>판정 시각과 수평 위치를 저장한다.</summary>
+            /// <summary>
+            /// 판정 시각과 수평 위치를 저장한다.
+            /// </summary>
             internal PositionSample(float time, Vector2 position)
             {
                 Time = time;
@@ -39,7 +43,9 @@ namespace XRLumina.Unity.Policies
         private float _lastYaw;
         private int _yawDirection;
         private float _yawSwingDegrees;
-        /// <summary>기본 캡처 판단 기준을 저장한다.</summary>
+        /// <summary>
+        /// 기본 캡처 판단 기준을 저장한다.
+        /// </summary>
         internal DefaultHeuristicCapturePolicy(float stationaryDurationSeconds, float stationaryMovementThreshold, float yawWindowSeconds, int yawRequiredReversals, float yawMinimumSwingDegrees, float interactionWindowSeconds, int interactionRequiredCount)
         {
             _stationaryDurationSeconds = stationaryDurationSeconds;
@@ -50,12 +56,16 @@ namespace XRLumina.Unity.Policies
             _interactionWindowSeconds = interactionWindowSeconds;
             _interactionRequiredCount = interactionRequiredCount;
         }
-        /// <summary>현재 위치와 회전으로 캡처 발생 여부를 판단한다.</summary>
+        /// <summary>
+        /// 현재 위치와 회전으로 캡처 발생 여부를 판단한다.
+        /// </summary>
         public HeuristicScreenshotTrigger? EvaluatePose(Vector3 position, float yaw, float capturedAt)
         {
             return UpdateStationary(position, capturedAt) ?? UpdateYaw(yaw, capturedAt);
         }
-        /// <summary>대상과 입력 조합의 반복 조건을 판단한다.</summary>
+        /// <summary>
+        /// 대상과 입력 조합의 반복 조건을 판단한다.
+        /// </summary>
         public HeuristicScreenshotTrigger? EvaluateInteraction(int objectId, string objectName,
             ControllerInput controllerInput, ControllerHand hand, float capturedAt)
         {
@@ -82,7 +92,9 @@ namespace XRLumina.Unity.Policies
                 objectName,
                 controllerInput, hand);
         }
-        /// <summary>XZ 누적 이동 거리가 기준 이하로 유지된 정지 구간을 판정한다.</summary>
+        /// <summary>
+        /// XZ 누적 이동 거리가 기준 이하로 유지된 정지 구간을 판정한다.
+        /// </summary>
         private HeuristicScreenshotTrigger? UpdateStationary(Vector3 position, float now)
         {
             var current = new PositionSample(now, new Vector2(position.x, position.z));
@@ -119,7 +131,9 @@ namespace XRLumina.Unity.Policies
             _stationaryCaptured = true;
             return new HeuristicScreenshotTrigger(Wire.HeuristicTrigger.Stationary, now);
         }
-        /// <summary>최근 Yaw 방향 반전 중 30도 이상 회전한 구간 수를 판정한다.</summary>
+        /// <summary>
+        /// 최근 Yaw 방향 반전 중 30도 이상 회전한 구간 수를 판정한다.
+        /// </summary>
         private HeuristicScreenshotTrigger? UpdateYaw(float yaw, float now)
         {
             if (!_hasYaw)
@@ -162,7 +176,9 @@ namespace XRLumina.Unity.Policies
             _yawReversalTimes.Clear();
             return new HeuristicScreenshotTrigger(Wire.HeuristicTrigger.HeadDirectionChange, now);
         }
-        /// <summary>위치 샘플 사이의 누적 이동거리를 계산한다.</summary>
+        /// <summary>
+        /// 위치 샘플 사이의 누적 이동거리를 계산한다.
+        /// </summary>
         private static float CalculateCumulativeDistance(IEnumerable<PositionSample> samples)
         {
             var hasPrevious = false;
@@ -179,7 +195,9 @@ namespace XRLumina.Unity.Policies
             }
             return total;
         }
-        /// <summary>새 측정을 위해 정책의 누적 상태를 초기화한다.</summary>
+        /// <summary>
+        /// 새 측정을 위해 정책의 누적 상태를 초기화한다.
+        /// </summary>
         public void Reset()
         {
             _positionSamples.Clear();

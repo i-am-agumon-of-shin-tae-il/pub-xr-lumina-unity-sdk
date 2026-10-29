@@ -1,6 +1,8 @@
 namespace XRLumina.Core.API
 {
-    /// <summary>엔진이 제공하는 클라이언트 정보와 연결 설정이다. 클라이언트 생성 시 복사된다.</summary>
+    /// <summary>
+    /// 엔진이 제공하는 클라이언트 정보와 연결 설정이다. 클라이언트 생성 시 복사된다.
+    /// </summary>
     public sealed class XRLuminaClientOptions
     {
         public string ClientId { get; set; }
