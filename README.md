@@ -519,9 +519,9 @@ Flush는 요청 ID를 반환하며 응답, 시간 초과, 연결 종료 결과�
 
 | 대상 | 패키지 경로 | 구성 |
 | --- | --- | --- |
-| macOS Editor와 Player | `Runtime/Plugins/XRLuminaCore/osx-universal/libxrlumina_core.dylib` | ARM64 및 Intel 공용 |
-| Android 기기 | `Runtime/Plugins/XRLuminaCore/android-arm64/libxrlumina_core.so` | ARM64, Android API 26 이상 |
-| iOS 기기 | `Runtime/Plugins/XRLuminaCore/ios-arm64/libxrlumina_core.a` | ARM64, iOS 13 이상 |
+| macOS Editor와 Player | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_osx_universal.dylib` | ARM64 및 Intel 공용 |
+| Android 기기 | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_android_arm64.so` | ARM64, Android API 26 이상 |
+| iOS 기기 | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_ios_arm64.a` | ARM64, iOS 13 이상 |
 
 각 플러그인은 해당 플랫폼에서만 로드하도록 설정되어 있습니다. Android 플러그인의 매니페스트에는 네트워크 통신을 위한 `INTERNET` 권한이 포함됩니다. iOS에서는 정적 연결된 `__Internal`의 C 함수를 호출합니다. 현재 패키지에는 Windows, Linux 및 iOS 시뮬레이터용 바이너리가 포함되어 있지 않습니다. 해당 환경은 대응하는 라이브러리와 Unity 플러그인 설정을 추가해야 합니다.
 

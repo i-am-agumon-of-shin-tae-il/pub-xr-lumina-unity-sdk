@@ -10,6 +10,12 @@ namespace XRLumina._Core.Infrastructure
     {
 #if UNITY_IOS && !UNITY_EDITOR
         private const string Library = "__Internal";
+#elif UNITY_ANDROID && !UNITY_EDITOR
+        private const string Library = "xrlumina_core_android_arm64";
+#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+        private const string Library = "xrlumina_core_osx_universal";
+#elif UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        private const string Library = "xrlumina_core_windows_x64";
 #else
         private const string Library = "xrlumina_core";
 #endif
