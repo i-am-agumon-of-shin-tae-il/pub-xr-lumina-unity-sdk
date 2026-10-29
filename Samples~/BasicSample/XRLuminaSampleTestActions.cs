@@ -1,5 +1,5 @@
+using XRLumina.Unity.Controllers;
 using UnityEngine;
-using XRLumina.Client;
 
 namespace XRLumina.Sample
 {

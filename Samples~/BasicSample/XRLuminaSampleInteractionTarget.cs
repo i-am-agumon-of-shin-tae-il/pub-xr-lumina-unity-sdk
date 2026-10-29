@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using XRLumina._Core.Model;
-using XRLumina.Features;
+using XRLumina.Unity.Controllers;
 
 namespace XRLumina.Sample
 {
@@ -9,7 +8,7 @@ namespace XRLumina.Sample
     [RequireComponent(typeof(Collider))]
     public sealed class XRLuminaSampleInteractionTarget : MonoBehaviour
     {
-        [SerializeField] private XRLumina.Model.EventKind interactionType;
+        [SerializeField] private XRLumina.Core.API.EventKind interactionType;
         [SerializeField] private Renderer targetRenderer;
         [SerializeField] private float feedbackDuration = 0.1f;
 
@@ -57,10 +56,10 @@ namespace XRLumina.Sample
         /// <summary>설정된 종류의 SDK 인터랙션 이벤트를 기록하고 타깃을 점멸시킨다.</summary>
         public void Interact()
         {
-            InteractionController.Instance?.RecordInteractionEvent(
+            XRLuminaInteractionController.Instance?.RecordInteractionEvent(
                 interactionType,
                 gameObject,
-                XRLumina.Model.ControllerInput.Interact);
+                XRLumina.Core.API.ControllerInput.Interact);
             if (_feedbackCoroutine != null)
             {
                 StopCoroutine(_feedbackCoroutine);

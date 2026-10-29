@@ -1,0 +1,17 @@
+{
+  "name": "XRLumina.Runtime",
+  "rootNamespace": "XRLumina.Unity",
+  "references": [
+    "Unity.Collections",
+    "XRLumina.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

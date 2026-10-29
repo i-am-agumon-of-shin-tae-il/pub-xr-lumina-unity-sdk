@@ -17,7 +17,7 @@
 ## 1. 연동 순서
 
 1. Unity Package Manager에서 XRLumina SDK 패키지를 프로젝트에 추가합니다.
-2. [`XRLuminaClient.prefab`](./Runtime/Prefabs/XRLuminaClient.prefab)을 최초 실행 씬에 배치합니다.
+2. [`XRLuminaClient.prefab`](./Runtime/Unity/Prefabs/XRLuminaClient.prefab)을 최초 실행 씬에 배치합니다.
 3. XRLuminaClientController의 Head에 HMD Camera Transform, Body에 플레이어 루트를 연결합니다.
 4. XRLumina 데스크톱 앱을 실행합니다.
 5. Unity 애플리케이션을 실행합니다.
@@ -31,9 +31,9 @@
 
 ## 2. Inspector 필수 설정
 
-[`XRLuminaClient.prefab`](./Runtime/Prefabs/XRLuminaClient.prefab)에는 연동에 필요한 컴포넌트가 포함돼 있습니다.
+[`XRLuminaClient.prefab`](./Runtime/Unity/Prefabs/XRLuminaClient.prefab)에는 연동에 필요한 컴포넌트가 포함돼 있습니다.
 
-### [XRLuminaClientController](./Runtime/Client/XRLuminaClientController.cs)
+### [XRLuminaClientController](./Runtime/Unity/Controllers/XRLuminaClientController.cs)
 
 데스크톱 앱 연결, 세션, 테스트 시작·종료 요청과 명령 수신을 담당합니다. 별도의 연결 메서드는 호출하지 않습니다.
 
@@ -57,7 +57,7 @@ XR Origin 또는 Player Root  → Body
 
 `Head`와 `Body`를 모두 지정하십시오. 누락된 참조를 HMD나 다른 카메라로 대체하지 않습니다. 아이트래킹 구간은 `Body.position`으로 나누며 시선과 캡처는 HMD를 사용합니다.
 
-### [MirroringController](./Runtime/Features/Controllers/MirroringController.cs)
+### [XRLuminaMirroringController](./Runtime/Unity/Controllers/XRLuminaMirroringController.cs)
 
 | 항목 | 설정 |
 | --- | --- |
@@ -66,11 +66,11 @@ XR Origin 또는 Player Root  → Body
 | Frames Per Second | 화면 전송 FPS |
 | Jpeg Quality | 전송 이미지 품질 |
 
-![MirroringController Inspector 설정 화면](./README/Screenshot%202026-09-28%20at%2014.12.22.png)
+![XRLuminaMirroringController Inspector 설정 화면](./README/Screenshot%202026-09-28%20at%2014.12.22.png)
 
 미러링·아이트래킹·휴리스틱 캡처는 모두 `XRLuminaClientController.Head`에 붙은 Camera를 사용합니다.
 
-### [InteractionController](./Runtime/Features/Controllers/InteractionController.cs)
+### [XRLuminaInteractionController](./Runtime/Unity/Controllers/XRLuminaInteractionController.cs)
 
 | 항목 | 설정 |
 | --- | --- |
@@ -83,7 +83,7 @@ XR Origin 또는 Player Root  → Body
 | Interaction Layer Mask / Max Distance | Controller 자동 감지 시 정면 Raycast 범위 |
 | Heuristic Capture Width / Height | 캡처 PNG 해상도 |
 
-### [EyeTrackingController](./Runtime/Features/Controllers/EyeTrackingController.cs)
+### [XRLuminaEyeTrackingController](./Runtime/Unity/Controllers/XRLuminaEyeTrackingController.cs)
 
 | 항목 | 설정 |
 | --- | --- |
@@ -95,6 +95,16 @@ XR Origin 또는 Player Root  → Body
 
 파노라마는 정지 구간 시작 시 바라본 방향이 중앙에 오도록 가로 픽셀을 순환 이동합니다. 시선 충돌점도 같은 촬영 위치와 이동 각도를 기준으로 변환하여 전송합니다. 따라서 아이트래킹의 `points`는 캡처 기준 좌표이며, `cameraPose`는 위치 `(0, 0, 0)`, 회전 `(0, 0, 0, 1)`입니다. 인터랙션의 월드 좌표에는 적용되지 않습니다.
 
+### 게임별 캡처 조건
+
+정책 인터페이스는 `Runtime/Unity/Contracts`와 `XRLumina.Unity.Contracts`에, 기본 구현은 `Runtime/Unity/Policies`에 있습니다. 시선 구간 판정 데이터 `GazeCaptureDecision`은 `Runtime/Unity/Models`와 `XRLumina.Unity.Models`에 있습니다.
+
+정지, 머리 방향 반전, 반복 입력에 따른 휴리스틱 캡처는 기본적으로 위 Inspector 기준을 사용합니다. 게임에서 다른 조건을 적용하려면 `IXRLuminaHeuristicCapturePolicy`를 구현하고 측정 시작 전에 `XRLuminaInteractionController.SetCapturePolicy(policy)`로 등록합니다. `EvaluatePose`와 `EvaluateInteraction`에서 캡처할 때만 `HeuristicScreenshotTrigger`를 반환하며, 캡처하지 않을 때는 `null`을 반환합니다.
+
+시선 캡처 구간은 `IXRLuminaGazeCapturePolicy`를 구현하고 `XRLuminaEyeTrackingController.SetCapturePolicy(policy)`로 등록합니다. `GazeCaptureDecision`으로 후보 구간 시작, 기록 초기화, 캡처 확정 여부와 보관할 기록의 시작 시각을 반환합니다. 시각 단위는 초이며 전달받은 `capturedAt`을 기준으로 합니다.
+
+정책의 `Reset`은 측정 시작과 정책 등록 시 호출됩니다. 카메라 촬영과 센서 수집은 Unity에서, 데이터 전송과 세션 제어는 네이티브 코어에서 수행합니다. 게임별 캡처 조건은 네이티브 코어에 포함하지 않습니다.
+
 ## 3. 데스크톱 앱 연결과 세션
 
 Unity 애플리케이션이 실행되면 SDK가 응답하는 데스크톱 앱을 모두 탐색하여 HMD 목록에 표시됩니다. 목록 표시용 통신만으로 특정 데스크톱에 고정되지 않습니다.
@@ -104,8 +114,8 @@ Unity 애플리케이션이 실행되면 SDK가 응답하는 데스크톱 앱을
 ### 세션 준비 확인
 
 ```csharp
+using XRLumina.Unity.Controllers;
 using UnityEngine;
-using XRLumina.Client;
 
 public sealed class XRLuminaSessionExample : MonoBehaviour
 {
@@ -147,7 +157,7 @@ public sealed class XRLuminaSessionExample : MonoBehaviour
 ### Unity에서 시작·종료 요청
 
 ```csharp
-using XRLumina.Client;
+using XRLumina.Unity.Controllers;
 
 bool startSent = XRLuminaClientController.Instance?.RequestStart() ?? false;
 bool finishSent = XRLuminaClientController.Instance?.RequestFinish() ?? false;
@@ -158,8 +168,8 @@ bool finishSent = XRLuminaClientController.Instance?.RequestFinish() ?? false;
 ### 데스크톱 앱 명령 수신
 
 ```csharp
+using XRLumina.Unity.Controllers;
 using UnityEngine;
-using XRLumina.Client;
 
 public sealed class XRLuminaTestLifecycle : MonoBehaviour
 {
@@ -170,13 +180,13 @@ public sealed class XRLuminaTestLifecycle : MonoBehaviour
     }
 
     /// <summary>수신한 테스트 명령을 Unity 콘텐츠 상태에 반영한다.</summary>
-    private void HandleCommand(XRLumina.Model.TestAction action)
+    private void HandleCommand(XRLumina.Core.API.TestAction action)
     {
-        if (action == XRLumina.Model.TestAction.Start)
+        if (action == XRLumina.Core.API.TestAction.Start)
         {
             StartContent();
         }
-        else if (action == XRLumina.Model.TestAction.Finish)
+        else if (action == XRLumina.Core.API.TestAction.Finish)
         {
             FinishContent();
         }
@@ -238,16 +248,16 @@ Unity에서 시작 버튼을 눌렀더라도 `RequestStart()` 호출 즉시 콘�
 
 ```csharp
 using UnityEngine;
-using XRLumina._Core.Model;
-using XRLumina.Features;
+using XRLumina.Core.API;
+using XRLumina.Unity.Controllers;
 
 public sealed class XRLuminaInteractionExample : MonoBehaviour
 {
     /// <summary>오브젝트 인터랙션 성공 이벤트를 기록한다.</summary>
     public void RecordObjectInteraction()
     {
-        InteractionController.Instance?.RecordInteractionEvent(
-            XRLumina.Model.EventKind.Object
+        XRLuminaInteractionController.Instance?.RecordInteractionEvent(
+            XRLumina.Core.API.EventKind.Object
         );
     }
 }
@@ -271,7 +281,7 @@ Unity UI Button, XR Interaction Toolkit의 Select 이벤트, 자체 Raycast 또�
 
 ### 휴리스틱 화면 캡처
 
-`InteractionController`는 테스트 측정 중 HMD 위치·Yaw와 Controller 입력을 함께 추적하고 다음 조건에서 HMD 카메라 화면을 PNG로 캡처합니다.
+`XRLuminaInteractionController`는 테스트 측정 중 HMD 위치·Yaw와 Controller 입력을 함께 추적하고 다음 조건에서 HMD 카메라 화면을 PNG로 캡처합니다.
 
 | 조건 | 판정 기준 |
 | --- | --- |
@@ -281,16 +291,16 @@ Unity UI Button, XR Interaction Toolkit의 Select 이벤트, 자체 Raycast 또�
 
 캡처 이미지는 `HeuristicScreenshot` FlatBuffers 메시지로 데스크톱에 전송됩니다. 테스트 종료 시 `FlushGroup.Heuristics`의 Flush가 전송되며, 데스크톱 앱의 업로드·저장 처리이 완료돼야 종료 흐름이 계속됩니다.
 
-기본 캡처 해상도는 1280×720이고 `InteractionController` Inspector에서 해상도, 판정 기준, Raycast LayerMask와 최대 거리를 조정할 수 있습니다. `Heuristic Capture Camera`가 비어 있으면 `Camera.main`을 사용합니다.
+기본 캡처 해상도는 1280×720이고 `XRLuminaInteractionController` Inspector에서 해상도, 판정 기준, Raycast LayerMask와 최대 거리를 조정할 수 있습니다. `Heuristic Capture Camera`가 비어 있으면 `Camera.main`을 사용합니다.
 
 Controller의 Primary, Secondary, Trigger, Grip 입력은 HMD 카메라 정면 Raycast 대상과 함께 자동으로 반복 여부를 판정합니다. 게임 로직에서 실제 상호작용 성공 대상을 알고 있는 경우에는 다음 오버로드를 사용합니다.
 
 ```csharp
-InteractionController.Instance?.RecordInteractionEvent(
-    XRLumina.Model.EventKind.Object,
+XRLuminaInteractionController.Instance?.RecordInteractionEvent(
+    XRLumina.Core.API.EventKind.Object,
     targetGameObject,
-    XRLumina.Model.ControllerInput.Trigger,
-    XRLumina.Model.ControllerHand.Right
+    XRLumina.Core.API.ControllerInput.Trigger,
+    XRLumina.Core.API.ControllerHand.Right
 );
 ```
 
@@ -301,8 +311,8 @@ InteractionController.Instance?.RecordInteractionEvent(
 XR Rig가 런타임에 생성되거나 씬 전환으로 변경되는 경우 `Head`와 `Body`를 다시 연결합니다.
 
 ```csharp
+using XRLumina.Unity.Controllers;
 using UnityEngine;
-using XRLumina.Client;
 
 public sealed class XRLuminaRigBinder : MonoBehaviour
 {
@@ -411,8 +421,8 @@ public sealed class XRLuminaRigBinder : MonoBehaviour
 ### 인터랙션 이벤트가 기록되지 않음
 
 - 테스트가 시작 상태인지 확인합니다.
-- `InteractionController`가 활성 상태인지 확인합니다.
-- `InteractionController.Instance`가 준비된 이후 호출하는지 확인합니다.
+- `XRLuminaInteractionController`가 활성 상태인지 확인합니다.
+- `XRLuminaInteractionController.Instance`가 준비된 이후 호출하는지 확인합니다.
 - 이벤트 호출 코드에 올바른 enum을 전달했는지 확인합니다.
 
 ### 인터랙션이 중복 기록됨
@@ -437,55 +447,131 @@ VR 버튼과 조이스틱은 SDK가 자동 감지합니다. 같은 입력 처리
 
 ### Android
 
-패키지의 `XRLuminaUsb.androidlib`가 AOA accessory와 로컬 TCP 사이의 바이트를 중계합니다. ADB 및 USB 디버깅은 필요하지 않습니다. 장치가 `android.hardware.usb.accessory`를 지원해야 하며, USB 접근은 사용자가 승인해야 합니다. 플러그인은 `NineFive / XRLumina` accessory만 연결합니다. 앱이 실행된 상태에서 연결을 처리하며 잠금·백그라운드에서의 지속 실행은 포함하지 않습니다.
+패키지의 `xrlumina_usb_android.aar`가 AOA accessory와 로컬 TCP 사이의 바이트를 중계합니다. ADB 및 USB 디버깅은 필요하지 않습니다. 장치가 `android.hardware.usb.accessory`를 지원해야 하며, USB 접근은 사용자가 승인해야 합니다. 플러그인은 `NineFive / XRLumina` accessory만 연결합니다. 앱이 실행된 상태에서 연결을 처리하며 잠금·백그라운드에서의 지속 실행은 포함하지 않습니다.
 
-Android 플러그인은 API 35로 컴파일하며 JNI 의존성과 ProGuard 보존 규칙을 포함합니다. 데스크톱에는 장치에 접근할 수 있는 USB 권한/드라이버가 필요합니다. Windows에서는 AOA 모드 전환 전후의 장치 모두에 적절한 드라이버가 있어야 합니다. Linux에서는 해당 장치의 udev 권한을 설정합니다.
+Android USB 라이브러리는 코어 프로젝트에서 API 35로 컴파일하며 JNI 의존성과 ProGuard 보존 규칙을 포함합니다. 데스크톱에는 장치에 접근할 수 있는 USB 권한/드라이버가 필요합니다. Windows에서는 AOA 모드 전환 전후의 장치 모두에 적절한 드라이버가 있어야 합니다. Linux에서는 해당 장치의 udev 권한을 설정합니다.
 
 ### iOS / iPadOS
 
-Unity C# `TcpListener`가 로컬 포트 `10000`에서 대기하고 데스크톱 앱이 usbmux로 이 포트에 접속합니다. Unity iOS 쪽에 PeerTalk 라이브러리를 추가할 필요는 없습니다. iPhone/iPad가 해당 컴퓨터를 신뢰해야 하며 Unity 앱이 실행 중이어야 합니다. Windows 데스크톱에는 Apple Mobile Device Support, Linux에는 usbmuxd가 필요합니다. macOS는 시스템 서비스를 사용합니다.
+네이티브 공용 코어가 로컬 포트 `10000`에서 대기하고 데스크톱 앱이 usbmux로 이 포트에 접속합니다. Unity iOS 쪽에 PeerTalk 라이브러리를 추가할 필요는 없습니다. iPhone/iPad가 해당 컴퓨터를 신뢰해야 하며 Unity 앱이 실행 중이어야 합니다. Windows 데스크톱에는 Apple Mobile Device Support, Linux에는 usbmuxd가 필요합니다. macOS는 시스템 서비스를 사용합니다.
 
 연결 종료 시 기존 측정 상태와 선택을 해제하며, 앱을 실행한 채 케이블을 다시 연결하면 데스크톱이 선택했던 USB 장치에 재접속합니다. USB 연결 경로 자체는 Wi-Fi·인터넷을 사용하지 않습니다. 데스크톱 인증과 서버 업로드는 별도의 네트워크 기능입니다.
 
 ## 공통 클라이언트 API
 
-`XRLumina.Client.XRLuminaClient`는 네이티브 공용 코어를 호출하는 C# 연결 코드입니다. Unity 컴포넌트는 이 클라이언트를 사용하고 화면과 사용자 입력은 기존 Unity 기능에서 수집합니다. 프리팹을 사용하는 경우 클라이언트를 별도로 생성하지 않습니다.
+SDK 진입점과 Unity 컴포넌트는 `XRLumina` 접두어를 사용합니다. 데이터 타입과 내부 구현은 역할 이름과 네임스페이스로 구분합니다. `Interop`은 C#과 네이티브 코어 사이의 호출·데이터·콜백 변환 영역입니다.
 
-| API | 역할 |
+C# 네임스페이스는 `Runtime` 아래 폴더 경로와 일치합니다. 예를 들어 `Core/Contracts`는 `XRLumina.Core.Contracts`, `Unity/Controllers`는 `XRLumina.Unity.Controllers`입니다.
+
+SDK 구성은 다음과 같습니다. 엔진 독립 코어 바이너리는 `Runtime/Libs/XRLuminaCore`에 배치하고, Android USB 라이브러리도 `Runtime/Libs/XRLuminaCore/xrlumina_usb_android.aar`에 배치합니다. USB 원본 코드는 공용 코어 프로젝트에서 관리합니다.
+
+| 경로 | 역할 |
 | --- | --- |
-| `new XRLuminaClient(options)` | 엔진 스레드에서 장치 정보와 연결 설정으로 생성 |
+| `Runtime/Core/Contracts` | 공개 트리거·콜백 인터페이스 |
+| `Runtime/Core/API` | 생성 API, 설정과 데이터 타입 |
+| `Runtime/Core/Interop` | 네이티브 함수 연결, DTO 변환, 메모리와 콜백 수명 관리 |
+| `Runtime/Unity` | Unity 생명주기 연결, 화면과 사용자 데이터 수집, 프리팹과 리소스 |
+
+엔진에서 코어를 호출하는 계약은 `IXRLuminaTriggers`, 코어 결과를 받는 계약은 `IXRLuminaCallbacks`입니다. `XRLuminaClient.Create(options, callbacks)`가 두 계약을 연결합니다. 네이티브 핸들과 C ABI 형식 변환은 내부 브릿지가 관리합니다.
+
+통신 메시지의 라우팅, 직렬화, 연결 및 측정 제어는 네이티브 공용 코어가 담당합니다. Unity 기능은 화면과 사용자 입력을 수집하여 트리거에 제출하고, 콜백으로 실행 결과를 받습니다. 프리팹을 사용하는 경우 클라이언트를 별도로 생성하지 않습니다.
+
+| 트리거 | 역할 |
+| --- | --- |
 | `Start()` | 접속, UDP 탐색, 활성화된 USB 브리지 대기 시작 |
-| `Tick(deltaSeconds)` | 수신 결과, 이벤트, Flush 제한 시간 처리 |
+| `Tick(deltaSeconds)` | 엔진 스레드에서 결과 콜백 처리 |
 | `RequestStart()`, `RequestFinish()` | 데스크톱에 측정 시작과 종료 요청 |
-| `SendTracking`, `SendInteractionEvent`, `SendMesh`, `SendGaze`, `SendCameraPose` | `XRLumina.Model`의 일반 데이터 형식 전송 |
-| `SendMirrorFrame`, `SendCapture` | 인코딩된 이미지 전송 |
-| `Flush(group, interval, onResult, timeoutSeconds)` | 그룹별 업로드 요청과 응답 처리 |
+| `SendTracking`, `SendInteractionEvent`, `SendMesh`, `SendGaze`, `SendCameraPose` | `XRLumina.Core.API` 자료형으로 수집 데이터 제출 |
+| `SendMirrorFrame`, `SendCapture`, `SendScreenshot` | 미러링, 측정 캡처, 휴리스틱 이미지 제출 |
+| `Flush(group, interval, timeoutSeconds)` | 업로드 완료 확인 요청과 요청 ID 반환 |
 | `Stop()` | 연결과 세션 정리 및 대기 요청 취소 |
 | `Dispose()` | 네이티브 핸들과 콜백 자원 최종 해제 |
 
-생성부터 폐기까지 같은 엔진 스레드에서 호출합니다. 네트워크 입출력은 코어의 별도 스레드에서 처리하며 이벤트는 `Tick` 호출 중 전달됩니다. 콜백 안에서 `Tick`을 재귀 호출하지 않습니다. `Tick`에 전달하는 시간은 초 단위이며 Unity 컴포넌트는 `Time.unscaledDeltaTime`을 사용합니다.
+| 콜백 | 역할 |
+| --- | --- |
+| `OnSessionReady(session)`, `OnSessionAccepted(session)` | 세션 준비 및 수락 결과 전달 |
+| `OnDisconnected()` | 선택 연결 해제 전달 |
+| `OnMeasurementStarted()`, `OnMeasurementFinished()` | 측정 시작 및 종료 확정 전달 |
+| `OnCommand(action)` | 데스크톱 측정 제어 명령 전달 |
+| `OnFault(error)` | 코어 오류 또는 콜백 처리 예외 전달 |
+| `OnFlushCompleted(id, ok, error)` | 요청 ID에 해당하는 업로드 결과 전달 |
+
+생성부터 폐기까지 같은 엔진 스레드에서 호출합니다. 네트워크 입출력은 코어의 별도 스레드에서 처리하며 콜백은 `Tick` 호출 중 전달됩니다. 콜백 안에서 `Tick`을 재귀 호출하지 않습니다. 콜백 안에서 `Dispose`를 호출하면 현재 네이티브 호출이 반환된 뒤 폐기합니다.
 
 ```csharp
-using XRLumina.Client;
-using XRLumina.Model;
+using XRLumina.Core.Contracts;
+using System;
+using XRLumina.Core.API;
 
-var client = new XRLuminaClient(new XRLuminaClientOptions
+public sealed class ContentCallbacks : IXRLuminaCallbacks
+{
+    /// <summary>세션 준비 결과를 받는다.</summary>
+    public void OnSessionReady(SessionData session)
+    {
+    }
+
+    /// <summary>세션 수락 결과를 받는다.</summary>
+    public void OnSessionAccepted(SessionData session)
+    {
+    }
+
+    /// <summary>연결 해제 결과를 받는다.</summary>
+    public void OnDisconnected()
+    {
+    }
+
+    /// <summary>측정 시작 확정을 받는다.</summary>
+    public void OnMeasurementStarted()
+    {
+    }
+
+    /// <summary>측정 종료 확정을 받는다.</summary>
+    public void OnMeasurementFinished()
+    {
+    }
+
+    /// <summary>측정 제어 명령을 받는다.</summary>
+    public void OnCommand(TestAction action)
+    {
+    }
+
+    /// <summary>코어와 콜백 처리 오류를 받는다.</summary>
+    public void OnFault(Exception error)
+    {
+        UnityEngine.Debug.LogWarning(error.Message);
+    }
+
+    /// <summary>요청 ID에 대응하는 업로드 결과를 받는다.</summary>
+    public void OnFlushCompleted(string id, bool ok, string error)
+    {
+        if (!ok)
+        {
+            UnityEngine.Debug.LogError($"{id}: {error}");
+        }
+    }
+}
+```
+
+```csharp
+using XRLumina.Core.API;
+using XRLumina.Core.Contracts;
+IXRLuminaTriggers client = XRLuminaClient.Create(new XRLuminaClientOptions
 {
     ClientId = "persistent-device-id",
     Model = "device-model",
     Name = "device-name",
-});
+}, new ContentCallbacks());
 client.Start();
 ```
 
-이후 엔진 갱신마다 `client.Tick(deltaSeconds)`를 호출하고 종료 시 `client.Dispose()`를 호출합니다. `ClientId`는 실행마다 변경하지 않는 장치 식별자입니다. `Host`가 비어 있으면 UDP 탐색, 값이 있으면 지정 주소로 접속합니다. 기본 TCP 포트는 9999, 탐색 UDP 포트는 9998입니다. 탐색 응답을 받으면 즉시 연결하며 `RetryDelayMs` 간격으로 탐색 또는 재접속을 반복합니다.
+엔진 갱신마다 `client.Tick(deltaSeconds)`를 호출하고 종료 시 `client.Dispose()`를 호출합니다. 시간 단위는 초이며 Unity 컴포넌트는 `Time.unscaledDeltaTime`을 전달합니다. `ClientId`는 실행마다 변경하지 않는 장치 식별자입니다. `Host`가 비어 있으면 UDP 탐색, 값이 있으면 지정 주소로 접속합니다. 기본 TCP 포트는 9999, 탐색 UDP 포트는 9998입니다. `RetryDelayMs` 간격으로 탐색 또는 재접속을 반복합니다.
 
-### 측정 데이터와 결과
+### 측정 데이터와 업로드 결과
 
 ```csharp
-var sent = client.SendTracking(new Tracking
+bool submitted = client.SendTracking(new Tracking
 {
-    Timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
     Head = new Pose
     {
         Position = new Vector3 { X = 1, Y = 2, Z = 3 },
@@ -499,29 +585,24 @@ var sent = client.SendTracking(new Tracking
 });
 ```
 
-`true`는 코어의 송신 대기열 등록 성공입니다. `false`는 세션 또는 연결이 없거나 대기열이 가득 찬 상태입니다. 잘못된 입력은 예외로 전달됩니다. 실패한 데이터를 코어가 무제한 저장하거나 자동 재전송하지 않으므로 호출 측에서 실패를 처리합니다.
+`true`는 코어 송신 대기열 등록 성공입니다. `false`는 세션 또는 연결이 없거나 대기열이 가득 찬 상태입니다. 잘못된 입력은 예외로 전달됩니다. 실패한 데이터는 호출 측에서 처리합니다.
 
-테스트 시작과 종료의 실제 상태는 수신 명령으로 확정합니다. 종료 명령을 받은 뒤 마지막 측정 데이터를 보내고 그룹별 Flush를 호출합니다.
+측정 종료 콜백을 받은 뒤 마지막 수집 데이터를 제출하고 그룹별 Flush를 요청합니다.
 
 ```csharp
-client.Flush(FlushGroup.Interaction, 0.2f, (ok, error) =>
-{
-    if (!ok)
-    {
-        UnityEngine.Debug.LogError(error);
-    }
-});
+string requestId = client.Flush(FlushGroup.Interaction, 0.2f);
 ```
 
-Flush는 요청 ID를 반환하며 응답, 시간 초과, 연결 종료 결과를 이후 `Tick`에서 콜백으로 전달합니다. 기본 제한 시간은 10초입니다. Flush 성공은 데스크톱의 해당 업로드 요청 응답이며 WAS와 분석 서버의 전체 분석 완료를 의미하지 않습니다.
+응답, 시간 초과, 연결 종료 결과는 이후 `Tick`에서 `OnFlushCompleted`로 전달됩니다. 반환된 요청 ID로 요청과 결과를 연결합니다. 기본 제한 시간은 10초입니다. Flush 성공은 데스크톱의 해당 업로드 요청 응답이며 WAS와 분석 서버의 전체 분석 완료를 의미하지 않습니다.
 
 ### 네이티브 라이브러리
 
 | 대상 | 패키지 경로 | 구성 |
 | --- | --- | --- |
-| macOS Editor와 Player | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_osx_universal.dylib` | ARM64 및 Intel 공용 |
-| Android 기기 | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_android_arm64.so` | ARM64, Android API 26 이상 |
-| iOS 기기 | `Runtime/Plugins/XRLuminaCore/libxrlumina_core_ios_arm64.a` | ARM64, iOS 13 이상 |
+| macOS Editor와 Player | `Runtime/Libs/XRLuminaCore/libxrlumina_core_osx_universal.dylib` | ARM64 및 Intel 공용 |
+| Android 기기 | `Runtime/Libs/XRLuminaCore/libxrlumina_core_android_arm64.so` | ARM64, Android API 26 이상 |
+| Android USB | `Runtime/Libs/XRLuminaCore/xrlumina_usb_android.aar` | USB 권한 요청과 AOA 중계 |
+| iOS 기기 | `Runtime/Libs/XRLuminaCore/libxrlumina_core_ios_arm64.a` | ARM64, iOS 13 이상 |
 
 각 플러그인은 해당 플랫폼에서만 로드하도록 설정되어 있습니다. Android 플러그인의 매니페스트에는 네트워크 통신을 위한 `INTERNET` 권한이 포함됩니다. iOS에서는 정적 연결된 `__Internal`의 C 함수를 호출합니다. 현재 패키지에는 Windows, Linux 및 iOS 시뮬레이터용 바이너리가 포함되어 있지 않습니다. 해당 환경은 대응하는 라이브러리와 Unity 플러그인 설정을 추가해야 합니다.
 
