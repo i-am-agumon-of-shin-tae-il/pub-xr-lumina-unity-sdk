@@ -113,7 +113,7 @@ namespace XRLumina.Features
         }
 
         /// <summary>지정 종류의 상호작용 이벤트 기록을 서비스에 전달한다.</summary>
-        public void RecordInteractionEvent(XRLumina.Protocol.EventKind type)
+        public void RecordInteractionEvent(XRLumina.Model.EventKind type)
         {
             if (_client?.IsMeasuring != true)
             {
@@ -125,10 +125,10 @@ namespace XRLumina.Features
 
         /// <summary>대상 오브젝트와 Controller 입력을 포함한 상호작용 이벤트를 기록한다.</summary>
         public void RecordInteractionEvent(
-            XRLumina.Protocol.EventKind type,
+            XRLumina.Model.EventKind type,
             GameObject target,
-            XRLumina.Protocol.ControllerInput controllerInput,
-            XRLumina.Protocol.ControllerHand hand = XRLumina.Protocol.ControllerHand.Unknown)
+            XRLumina.Model.ControllerInput controllerInput,
+            XRLumina.Model.ControllerHand hand = XRLumina.Model.ControllerHand.Unknown)
         {
             if (_client?.IsMeasuring != true)
             {

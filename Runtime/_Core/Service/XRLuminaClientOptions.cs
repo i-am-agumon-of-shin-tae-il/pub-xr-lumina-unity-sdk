@@ -9,7 +9,6 @@ namespace XRLumina.Client
         public string Host { get; set; } = "";
         public int Port { get; set; } = 9999;
         public int DiscoveryPort { get; set; } = 9998;
-        public int DiscoveryTimeoutMs { get; set; } = 800;
         public int RetryDelayMs { get; set; } = 1500;
         public bool UsbEnabled { get; set; }
         public int UsbPort { get; set; } = 10000;

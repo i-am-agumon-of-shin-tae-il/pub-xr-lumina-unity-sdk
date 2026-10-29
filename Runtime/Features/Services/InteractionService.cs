@@ -1,12 +1,11 @@
 using XRLumina.Client;
 using System;
-using Wire = XRLumina.Protocol;
+using Wire = XRLumina.Model;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.XR;
-using XRLumina._Core.Infrastructure;
 using XRLumina._Core.Messaging.Senders;
 using XRLumina._Core.Model;
 
@@ -44,14 +43,14 @@ namespace XRLumina._Core.Service
         internal IEnumerator StartFeature()
         {
             ResetInputState();
-            RecordEvent(XRLumina.Protocol.EventKind.Task);
+            RecordEvent(XRLumina.Model.EventKind.Task);
             return CreateTrackingLoop(_framesPerSecond);
         }
 
         /// <summary>추적을 종료하고 NavMesh와 누적 데이터를 Electron으로 플러시한다.</summary>
         internal void FinishFeature()
         {
-            RecordEvent(XRLumina.Protocol.EventKind.Task);
+            RecordEvent(XRLumina.Model.EventKind.Task);
             CaptureAndSendNavMesh();
         }
 
@@ -68,7 +67,7 @@ namespace XRLumina._Core.Service
             var controllerPressed = IsControllerPressed(left) || IsControllerPressed(right);
             if (controllerPressed && !_wasControllerPressed)
             {
-                RecordEvent(XRLumina.Protocol.EventKind.Controller);
+                RecordEvent(XRLumina.Model.EventKind.Controller);
             }
             _wasControllerPressed = controllerPressed;
 
@@ -77,7 +76,7 @@ namespace XRLumina._Core.Service
         }
 
         /// <summary>현재 머리 위치를 기준으로 지정 종류의 상호작용 이벤트를 기록한다.</summary>
-        internal void RecordEvent(XRLumina.Protocol.EventKind type)
+        internal void RecordEvent(XRLumina.Model.EventKind type)
         {
             var source = _resolveHead?.Invoke();
             if (source == null)
@@ -99,7 +98,7 @@ namespace XRLumina._Core.Service
                 && axis.magnitude > _joystickDeadzone;
             if (isPushed && !wasPushed)
             {
-                RecordEvent(XRLumina.Protocol.EventKind.Gesture);
+                RecordEvent(XRLumina.Model.EventKind.Gesture);
             }
             wasPushed = isPushed;
         }
@@ -182,10 +181,10 @@ namespace XRLumina._Core.Service
                 return;
             }
 
-            _sender?.SendStream(Wire.MessageUnion.FromTracking(new Wire.TrackingT
+            _sender?.SendStream(new Wire.Tracking
             {
                 Timestamp = timestamp, Head = ToPose(head), Body = ToPose(body),
-            }));
+            });
         }
 
         /// <summary>상호작용 종류와 위치를 이벤트 패킷으로 전송한다.</summary>
@@ -197,11 +196,11 @@ namespace XRLumina._Core.Service
             Vector3 position,
             bool includeY = true)
         {
-            _sender?.SendStream(Wire.MessageUnion.FromInteractionEvent(new Wire.InteractionEventT
+            _sender?.SendStream(new Wire.InteractionEvent
             {
                 Type = type, OpName = operationName, Count = count, Timestamp = timestamp,
                 Position = ToVector(position), HasY = includeY,
-            }));
+            });
         }
 
         /// <summary>NavMesh 정점과 인덱스를 메시 패킷으로 전송한다.</summary>
@@ -212,7 +211,7 @@ namespace XRLumina._Core.Service
                 return;
             }
 
-            var points = new List<Wire.Vector3T>(vertices.Count);
+            var points = new List<Wire.Vector3>(vertices.Count);
             foreach (var vertex in vertices)
             {
                 points.Add(ToVector(vertex));
@@ -222,19 +221,19 @@ namespace XRLumina._Core.Service
             {
                 triangles.Add(index);
             }
-            _sender?.SendStream(Wire.MessageUnion.FromMesh(new Wire.MeshT { Vertices = points, Indices = triangles, }));
+            _sender?.SendStream(new Wire.Mesh { Vertices = points, Indices = triangles, });
         }
 
         /// <summary>Unity Transform을 엔진 독립적인 스키마 포즈로 변환한다.</summary>
-        private static Wire.PoseT ToPose(Transform target)
+        private static Wire.Pose ToPose(Transform target)
         {
-            return new Wire.PoseT { Position = ToVector(target.position), Rotation = ToVector(target.eulerAngles), };
+            return new Wire.Pose { Position = ToVector(target.position), Rotation = ToVector(target.eulerAngles), };
         }
 
         /// <summary>Unity 좌표를 공통 스키마의 벡터로 변환한다.</summary>
-        private static Wire.Vector3T ToVector(Vector3 value)
+        private static Wire.Vector3 ToVector(Vector3 value)
         {
-            return new Wire.Vector3T { X = value.x, Y = value.y, Z = value.z, };
+            return new Wire.Vector3 { X = value.x, Y = value.y, Z = value.z, };
         }
     }
 }

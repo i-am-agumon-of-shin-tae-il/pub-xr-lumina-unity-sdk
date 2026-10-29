@@ -1,5 +1,5 @@
 using System;
-using XRLumina.Protocol;
+using XRLumina.Model;
 using System.Collections;
 using UnityEngine;
 using XRLumina._Core.Model;
@@ -16,7 +16,6 @@ namespace XRLumina.Client
 
         [SerializeField] private Transform head;
         [SerializeField] private Transform body;
-        [SerializeField] private int discoveryTimeoutMs = 800;
         [SerializeField] private int retryDelayMs = 1500;
         [SerializeField] private bool usbEnabled = true;
         [SerializeField] private int usbPort = 10000;
@@ -58,7 +57,7 @@ namespace XRLumina.Client
                 Model = SystemInfo.deviceModel,
                 Name = SystemInfo.deviceName,
                 Host = _host, Port = _port, DiscoveryPort = _discoveryPort,
-                DiscoveryTimeoutMs = discoveryTimeoutMs, RetryDelayMs = retryDelayMs,
+                RetryDelayMs = retryDelayMs,
                 UsbEnabled = usbEnabled, UsbPort = usbPort,
             });
             _service.CommandReceived += HandleCommand;

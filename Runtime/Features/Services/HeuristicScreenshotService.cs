@@ -1,6 +1,6 @@
 using XRLumina.Client;
 using System;
-using Wire = XRLumina.Protocol;
+using Wire = XRLumina.Model;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

@@ -1,4 +1,4 @@
-using XRLumina.Protocol;
+using XRLumina.Model;
 
 namespace XRLumina._Core.Model
 {
@@ -11,6 +11,9 @@ namespace XRLumina._Core.Model
         internal string ObjectName { get; }
         internal ControllerInput ControllerInput { get; }
 
+        /// <summary>
+        /// 휴리스틱 캡처 발생 조건과 입력 정보 구성
+        /// </summary>
         internal HeuristicScreenshotTrigger(
             HeuristicTrigger type,
             float capturedAt,

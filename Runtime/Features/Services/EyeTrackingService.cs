@@ -1,6 +1,6 @@
 using XRLumina.Client;
 using System;
-using Wire = XRLumina.Protocol;
+using Wire = XRLumina.Model;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -429,21 +429,21 @@ namespace XRLumina._Core.Service
             }
 
             var worldToCapture = Quaternion.Inverse(_panoramaRotation);
-            var items = new List<Wire.GazeFrameT>(frames.Count);
+            var items = new List<Wire.GazeFrame>(frames.Count);
             foreach (var frame in frames)
             {
-                var points = new List<Wire.Vector3T>();
+                var points = new List<Wire.Vector3>();
                 if (frame.Points != null)
                 {
                     foreach (var point in frame.Points)
                     {
                         var capturePoint = worldToCapture * (point - _panoramaPosition);
-                        points.Add(new Wire.Vector3T { X = capturePoint.x, Y = capturePoint.y, Z = capturePoint.z, });
+                        points.Add(new Wire.Vector3 { X = capturePoint.x, Y = capturePoint.y, Z = capturePoint.z, });
                     }
                 }
-                items.Add(new Wire.GazeFrameT { Frame = frame.Frame, Time = frame.Time, Points = points, });
+                items.Add(new Wire.GazeFrame { Frame = frame.Frame, Time = frame.Time, Points = points, });
             }
-            _sender?.SendStream(Wire.MessageUnion.FromGaze(new Wire.GazeT { Name = fileName, Items = items, }));
+            _sender?.SendStream(new Wire.Gaze { Name = fileName, Items = items, });
         }
 
         /// <summary>PNG 파일을 단일 메시지로 전송하고 스트림의 분할 처리를 사용한다.</summary>
@@ -458,12 +458,12 @@ namespace XRLumina._Core.Service
         /// <summary>카메라 위치와 회전을 스키마 필드로 전송한다.</summary>
         private void SendCameraPose(string fileName, Vector3 position, Quaternion rotation)
         {
-            _sender?.SendStream(Wire.MessageUnion.FromCameraPose(new Wire.CameraPoseT
+            _sender?.SendStream(new Wire.CameraPose
             {
                 Name = fileName,
-                Position = new Wire.Vector3T { X = position.x, Y = position.y, Z = position.z, },
-                Rotation = new Wire.QuaternionT { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w, },
-            }));
+                Position = new Wire.Vector3 { X = position.x, Y = position.y, Z = position.z, },
+                Rotation = new Wire.Quaternion { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w, },
+            });
         }
     }
 }

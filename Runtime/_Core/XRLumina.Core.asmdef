@@ -1,10 +1,7 @@
 {
   "name": "XRLumina.Core",
   "rootNamespace": "XRLumina",
-  "references": [
-    "XRLumina.Protocol",
-    "Google.FlatBuffers"
-  ],
+  "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
@@ -13,5 +10,5 @@
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": [],
-  "noEngineReferences": true
+  "noEngineReferences": false
 }

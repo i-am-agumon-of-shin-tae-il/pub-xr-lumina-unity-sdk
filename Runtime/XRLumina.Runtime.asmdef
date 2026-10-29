@@ -3,9 +3,7 @@
   "rootNamespace": "XRLumina",
   "references": [
     "Unity.Collections",
-    "Google.FlatBuffers",
-    "XRLumina.Core",
-    "XRLumina.Protocol"
+    "XRLumina.Core"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
