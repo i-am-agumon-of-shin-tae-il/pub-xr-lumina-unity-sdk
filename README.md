@@ -20,6 +20,8 @@ XR Lumina 공용 코어를 C#에서 호출하기 위한 패키지입니다. SDK�
 
 ## 설치
 
+Android는 **API 26(Android 8.0) 이상, ARM64**가 필요합니다. Unity Player Settings의 Minimum API Level을 26 이상으로 지정합니다. USB 라이브러리와 네이티브 코어 모두 이 최소 버전을 기준으로 합니다.
+
 Unity Package Manager에서 SDK 저장소를 Git URL 또는 로컬 패키지로 추가합니다. SDK 기능 컴포넌트는 Collections와 Unity 기본 AI·촬영·물리·XR·Android JNI 모듈을 사용합니다. Input System, URP, AI Navigation과 UGUI는 샘플 실행에 필요한 별도 패키지입니다.
 
 ## SDK 컴포넌트 사용
