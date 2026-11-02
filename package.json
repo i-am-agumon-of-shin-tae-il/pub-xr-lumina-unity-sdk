@@ -5,9 +5,7 @@
   "description": "Unity XR integration SDK for XRLumina Desktop App.",
   "unity": "6000.2",
   "dependencies": {
-    "com.unity.ai.navigation": "2.0.9",
     "com.unity.collections": "2.5.7",
-    "com.unity.render-pipelines.universal": "17.3.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.imageconversion": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
